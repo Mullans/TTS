@@ -1,18 +1,36 @@
-from TTS.tts.utils.text.phonemizers.bangla_phonemizer import BN_Phonemizer
 from TTS.tts.utils.text.phonemizers.base import BasePhonemizer
-from TTS.tts.utils.text.phonemizers.belarusian_phonemizer import BEL_Phonemizer
 from TTS.tts.utils.text.phonemizers.espeak_wrapper import ESpeak
 from TTS.tts.utils.text.phonemizers.gruut_wrapper import Gruut
-from TTS.tts.utils.text.phonemizers.ko_kr_phonemizer import KO_KR_Phonemizer
-from TTS.tts.utils.text.phonemizers.zh_cn_phonemizer import ZH_CN_Phonemizer
+
+PHONEMIZERS = {b.name(): b for b in (ESpeak, Gruut)}
 
 try:
     from TTS.tts.utils.text.phonemizers.ja_jp_phonemizer import JA_JP_Phonemizer
 except ImportError:
     JA_JP_Phonemizer = None
     pass
+try:
+    from TTS.tts.utils.text.phonemizers.bangla_phonemizer import BN_Phonemizer
+except ImportError:
+    BN_Phonemizer = None
+    pass
+try:
+    from TTS.tts.utils.text.phonemizers.ko_kr_phonemizer import KO_KR_Phonemizer
+except ImportError:
+    KO_KR_Phonemizer = None
+    pass
+try:
+    from TTS.tts.utils.text.phonemizers.zh_cn_phonemizer import ZH_CN_Phonemizer
+except ImportError:
+    ZH_CN_Phonemizer = None
+    pass
+try:
+    from TTS.tts.utils.text.phonemizers.belarusian_phonemizer import BEL_Phonemizer
+except ImportError:
+    BEL_Phonemizer = None
+    pass
 
-PHONEMIZERS = {b.name(): b for b in (ESpeak, Gruut, KO_KR_Phonemizer, BN_Phonemizer)}
+# PHONEMIZERS = {b.name(): b for b in (ESpeak, Gruut, KO_KR_Phonemizer, BN_Phonemizer)}
 
 
 ESPEAK_LANGS = list(ESpeak.supported_languages().keys())
@@ -33,12 +51,18 @@ DEF_LANG_TO_PHONEMIZER.update(_new_dict)
 
 # Force default for some languages
 DEF_LANG_TO_PHONEMIZER["en"] = DEF_LANG_TO_PHONEMIZER["en-us"]
-DEF_LANG_TO_PHONEMIZER["zh-cn"] = ZH_CN_Phonemizer.name()
-DEF_LANG_TO_PHONEMIZER["ko-kr"] = KO_KR_Phonemizer.name()
-DEF_LANG_TO_PHONEMIZER["bn"] = BN_Phonemizer.name()
-DEF_LANG_TO_PHONEMIZER["be"] = BEL_Phonemizer.name()
-
-
+if ZH_CN_Phonemizer is not None:
+    PHONEMIZERS[ZH_CN_Phonemizer.name()] = ZH_CN_Phonemizer
+    DEF_LANG_TO_PHONEMIZER["zh-cn"] = ZH_CN_Phonemizer.name()
+if KO_KR_Phonemizer is not None:
+    PHONEMIZERS[KO_KR_Phonemizer.name()] = KO_KR_Phonemizer
+    DEF_LANG_TO_PHONEMIZER["ko-kr"] = KO_KR_Phonemizer.name()
+if BN_Phonemizer is not None:
+    PHONEMIZERS[BN_Phonemizer.name()] = BN_Phonemizer
+    DEF_LANG_TO_PHONEMIZER["bn"] = BN_Phonemizer.name()
+if BEL_Phonemizer is not None:
+    PHONEMIZERS[BEL_Phonemizer.name()] = BEL_Phonemizer
+    DEF_LANG_TO_PHONEMIZER["be"] = BEL_Phonemizer.name()
 # JA phonemizer has deal breaking dependencies like MeCab for some systems.
 # So we only have it when we have it.
 if JA_JP_Phonemizer is not None:
@@ -68,8 +92,8 @@ def get_phonemizer_by_name(name: str, **kwargs) -> BasePhonemizer:
         return JA_JP_Phonemizer(**kwargs)
     if name == "ko_kr_phonemizer":
         return KO_KR_Phonemizer(**kwargs)
-    if name == "bn_phonemizer":
-        return BN_Phonemizer(**kwargs)
+    # if name == "bn_phonemizer":
+    #     return BN_Phonemizer(**kwargs)
     if name == "be_phonemizer":
         return BEL_Phonemizer(**kwargs)
     raise ValueError(f"Phonemizer {name} not found")

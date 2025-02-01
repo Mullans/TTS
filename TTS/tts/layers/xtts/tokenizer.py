@@ -1,12 +1,11 @@
 import os
 import re
 import textwrap
+import warnings
 from functools import cached_property
 
-import pypinyin
+
 import torch
-from hangul_romanize import Transliter
-from hangul_romanize.rule import academic
 from num2words import num2words
 from spacy.lang.ar import Arabic
 from spacy.lang.en import English
@@ -16,6 +15,18 @@ from spacy.lang.zh import Chinese
 from tokenizers import Tokenizer
 
 from TTS.tts.layers.xtts.zh_num2words import TextNorm as zh_num2words
+
+try:
+    import pypinyin
+except ImportError:
+    pypinyin = None
+    warnings.warn("pypinyin is not installed, Chinese text normalization will not work.")
+
+try:
+    from hangul_romanize import Transliter
+    from hangul_romanize.rule import academic
+except ImportError:
+    warnings.warn("hangul-romanize is not installed, Korean text normalization will not work.")
 
 
 def get_spacy_lang(lang):
